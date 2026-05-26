@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Liliana Della Porta.
+Portfolio</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Times New Roman', Times, serif; font-size: 14px; background: #fff; color: #000; min-height: 100vh; }
+
+  nav { position: fixed; top: 16px; left: 16px; z-index: 100; display: flex; flex-direction: column; gap: 2px; }
+  nav a { text-decoration: none; color: #000; cursor: pointer; font-size: 14px; line-height: 1.4; }
+  nav a.active, nav a:hover { color: #0000EE; }
+
+  .copyright { position: fixed; top: 16px; right: 16px; font-size: 11px; color: #000; z-index: 100; }
+
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ABOUT */
+  #about-page { position: relative; width: 100%; height: 100vh; }
+  .about-bio { position: absolute; top: 45%; left: 16px; max-width: 420px; line-height: 1.55; font-size: 14px; }
+  .about-clients { position: absolute; bottom: 60px; left: 16px; font-size: 14px; line-height: 1.5; }
+  .about-clients .clients-label { margin-bottom: 2px; }
+
+  /* PROJECTS */
+  #projects-page { padding-top: 45vh; padding-left: 16px; min-height: 100vh; }
+  .projects-layout { display: flex; align-items: flex-start; }
+
+  .categories-col { width: 120px; flex-shrink: 0; display: flex; flex-direction: column; gap: 6px; }
+  .category-item { position: relative; }
+  .category-link { cursor: pointer; color: #000; font-size: 14px; line-height: 1.4; display: block; }
+  .category-link:hover, .category-link.active { color: #0000EE; }
+
+  .project-list { display: none; position: absolute; top: 0; left: 120px; flex-direction: column; gap: 6px; white-space: nowrap; }
+  .project-list.visible { display: flex; }
+  .project-link { cursor: pointer; color: #000; font-size: 14px; line-height: 1.4; }
+  .project-link:hover, .project-link.active { color: #0000EE; }
+
+  .gallery-col { flex: 1; display: flex; align-items: flex-start; justify-content: center; padding-left: 200px; min-height: 75vh; }
+  .gallery-image-wrap, .gallery-media-wrap { display: none; cursor: pointer; width: 440px; height: 70vh; position: relative; align-items: center; justify-content: center; }
+  .gallery-image-wrap { display: none; }
+  .img-inner { position: relative; display: inline-block; }
+  .gallery-image-wrap img, .gallery-media-wrap img {
+    display: block;
+    max-height: 70vh;
+    max-width: 540px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+  }
+  .gallery-image-wrap video, .gallery-media-wrap video {
+    display: block;
+    max-height: 70vh;
+    max-width: 540px;
+    width: auto;
+  }
+  .gallery-image-wrap img { max-height: 70vh; max-width: 440px; width: auto; display: block; object-fit: contain; }
+
+  /* Zoom icon on image hover */
+  .gallery-image-wrap, .gallery-media-wrap {
+    position: relative;
+  }
+  .zoom-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 22px;
+    height: 22px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    padding: 0;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+  }
+  .zoom-btn:hover { opacity: 1; }
+  .zoom-btn svg { width: 12px; height: 12px; stroke: #fff; filter: drop-shadow(0 0 1px rgba(0,0,0,0.8)); }
+  .img-inner:hover .zoom-btn { display: flex; }
+  .mute-btn {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: none;
+    z-index: 10;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+    padding: 0;
+  }
+  .mute-btn:hover { opacity: 1; }
+  .mute-btn svg { width: 14px; height: 14px; stroke: #fff; filter: drop-shadow(0 0 1px rgba(0,0,0,0.8)); }
+
+  /* Lightbox */
+  #lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.97);
+    z-index: 99999;
+    align-items: center;
+    justify-content: center;
+    cursor: zoom-out;
+  }
+  #lightbox.open { display: flex; }
+  body.lightbox-open nav, body.lightbox-open .copyright { visibility: hidden; }
+  #lightbox-inner {
+    cursor: default;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #lightbox-inner img {
+    max-width: 55vw;
+    max-height: 80vh;
+    width: auto;
+    height: auto;
+    display: block;
+    cursor: default;
+  }
+  #lightbox-inner video {
+    max-width: 55vw;
+    max-height: 80vh;
+    display: block;
+  }
+  #lightbox-close {
+    position: fixed;
+    top: 20px;
+    right: 24px;
+    color: #fff;
+    font-size: 24px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-family: 'Times New Roman', serif;
+    line-height: 1;
+    z-index: 10000;
+  }
+  #lightbox-credits {
+    font-size: 13px;
+  }
+  #lightbox-credits .credit-line {
+    color: #fff !important;
+    margin-bottom: 8px;
+  }
+  #lightbox-credits .credit-line span {
+    color: rgba(255,255,255,0.6) !important;
+    display: block;
+    font-size: 11px;
+  }
+  #lightbox-info {
+    font-size: 12px;
+  }
+  #lightbox-info .project-role {
+    color: #fff !important;
+    font-style: italic;
+    line-height: 1.6;
+  }
+
+  /* Credits layout */
+  .project-info {
+    display: none;
+    position: fixed;
+    bottom: 40px;
+    right: 16px;
+    text-align: right;
+    max-width: 200px;
+  }
+  .project-info.visible { display: block; }
+  .project-role {
+    font-size: 10px;
+    font-style: italic;
+    color: #000;
+    line-height: 1.5;
+  }
+
+  .project-credits {
+    display: none;
+    position: fixed;
+    top: 45vh;
+    right: 16px;
+    text-align: right;
+  }
+  .project-credits.visible { display: block; }
+  .credit-line {
+    font-size: 10px;
+    color: #000;
+    line-height: 1.3;
+    letter-spacing: 0.03em;
+    margin-bottom: 6px;
+  }
+  .credit-line span {
+    display: block;
+    text-transform: none;
+    font-size: 10px;
+    letter-spacing: 0.02em;
+    color: #000;
+  }
+
+  
+  /* Credits & Info - right side of page */
+  .project-credits {
+    display: none;
+    position: fixed;
+    top: 45vh;
+    right: 16px;
+    text-align: right;
+    max-width: 250px;
+    z-index: 50;
+  }
+  .project-credits.visible { display: block; }
+  .project-info {
+    display: none;
+    position: fixed;
+    bottom: 40px;
+    right: 16px;
+    text-align: right;
+    max-width: 250px;
+    font-style: italic;
+    font-size: 10px;
+    line-height: 1.5;
+    z-index: 50;
+  }
+  .project-info.visible { display: block; }
+  .credit-line { font-size: 10px; color: #000; line-height: 1.3; margin-bottom: 6px; }
+  .credit-line span { display: block; font-size: 10px; color: #000; }
+
+  #gallery-givenchy-event { width: 820px !important; height: 72vh !important; margin-left: -260px; }
+  #gallery-givenchy-event img { max-width: 820px !important; max-height: 72vh !important; }
+
+  /* ── MOBILE ── */
+  @media (max-width: 768px) {
+
+    /* Nav */
+    nav { top: 20px; left: 16px; gap: 4px; }
+    nav a { font-size: 13px; }
+    .copyright { font-size: 9px; top: 20px; right: 12px; max-width: 40vw; text-align: right; }
+
+    /* About */
+    .about-bio { top: 30%; left: 16px; right: 16px; max-width: 100%; font-size: 13px; }
+    .about-clients { bottom: 40px; left: 16px; font-size: 13px; }
+
+    /* Projects page */
+    #projects-page { padding-top: 80px; padding-left: 0; }
+    .projects-layout { flex-direction: column; }
+
+    /* Categories */
+    .categories-col {
+      width: 100%;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 8px 20px;
+      padding: 0 16px;
+    }
+    .category-item { position: static; }
+    .category-link { font-size: 13px; }
+
+    /* Project list */
+    .project-list {
+      position: static;
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+      padding: 12px 16px 0 16px;
+      white-space: normal;
+      width: 100vw;
+    }
+    .project-list.visible { display: flex; }
+    .project-link { font-size: 13px; }
+
+    /* Gallery - full screen on mobile */
+    .gallery-col {
+      padding-left: 0;
+      width: 100vw;
+      min-height: 0;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .gallery-image-wrap,
+    .gallery-media-wrap {
+      width: 100vw !important;
+      height: 70vh !important;
+      margin-left: 0 !important;
+      display: none;
+      position: relative;
+      touch-action: pan-y;
+    }
+
+    .gallery-image-wrap img,
+    .gallery-media-wrap img {
+      max-width: 95vw !important;
+      max-height: 70vh !important;
+      margin: 0 auto;
+    }
+
+    /* Swipe hint arrows */
+    .swipe-hint {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      padding: 10px 0;
+      font-size: 18px;
+      color: #aaa;
+    }
+
+    /* Credits on mobile - below image */
+    .project-credits {
+      position: static !important;
+      display: none;
+      text-align: left !important;
+      padding: 16px 16px 0 16px;
+      max-width: 100% !important;
+    }
+    .project-credits.visible { display: block; }
+    .project-info {
+      position: static !important;
+      display: none;
+      text-align: left !important;
+      padding: 8px 16px 40px 16px;
+      max-width: 100% !important;
+    }
+    .project-info.visible { display: block; }
+
+    /* Givenchy override reset on mobile */
+    #gallery-givenchy-event {
+      width: 100vw !important;
+      margin-left: 0 !important;
+    }
+    #gallery-givenchy-event img {
+      max-width: 95vw !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a id="nav-about" class="active" onclick="showAbout()">about</a>
+  <a id="nav-projects" onclick="showProjects()">projects</a>
+</nav>
+
+<div class="copyright">Liliana Della Porta Creative Portfolio © 2026 | All Rights Reserved</div>
+
+<!-- ABOUT -->
+<div class="page active" id="about-page">
+  <div class="about-bio">
+    I am a Paris-based fashion and luxury professional specialising in image and video production coordination across editorial, commercial and campaign environments. My work focuses on coordinating international creative teams, talents and high-visibility productions for the biggest luxury houses and fashion publications.
+  </div>
+  <div class="about-clients">
+    <div class="clients-label">Clients</div>
+    <div>Dior, Chanel, Givenchy, Hermès,</div>
+    <div>Chloé, Vogue, W Magazine, Harper's</div>
+    <div>Bazaar, Le Monde d'Hermès</div>
+  </div>
+</div>
+
+<!-- PROJECTS -->
+<div class="page" id="projects-page">
+  <div class="projects-layout">
+
+    <div style="display:flex;flex-direction:column;gap:32px;">
+    <div class="categories-col">
+
+      <div class="category-item">
+        <span class="category-link" data-cat="editorial" onmouseenter="hoverCat('editorial')">editorial</span>
+        <div class="project-list" id="list-editorial">
+          <span class="project-link" onclick="openProject('t-magazine', this)">T Magazine design issue</span>
+          <span class="project-link" onclick="openProject('hbf-31', this)">Harper's Bazaar France n°31</span>
+          <span class="project-link" onclick="openProject('hbf-32', this)">Harper's Bazaar France n°32</span>
+          <span class="project-link" onclick="openProject('hbh', this)">Harper's Bazaar Homme</span>
+          <span class="project-link" onclick="openProject('numero-260', this)">Numéro magazine 260</span>
+        </div>
+      </div>
+
+      <div class="category-item">
+        <span class="category-link" data-cat="commercial" onmouseenter="hoverCat('commercial')">commercial</span>
+        <div class="project-list" id="list-commercial">
+          <span class="project-link" onclick="openProject('dior-campaign', this)">Dior SS26 Campaign</span>
+          <span class="project-link" onclick="openProject('chanel-video', this)">Bleu de Chanel x Jacob Elordi</span>
+        </div>
+      </div>
+
+      <div class="category-item">
+        <span class="category-link" data-cat="experiences" onmouseenter="hoverCat('experiences')">experiences</span>
+        <div class="project-list" id="list-experiences">
+          <span class="project-link" onclick="openProject('givenchy-event', this)">Givenchy FW25 Show Experience</span>
+        </div>
+      </div>
+
+      <div class="category-item">
+        <span class="category-link" data-cat="celebrities" onmouseenter="hoverCat('celebrities')">celebrities</span>
+        <div class="project-list" id="list-celebrities">
+          <span class="project-link" onclick="openProject('celeb-1', this)">Dior FW26 x Anya Taylor-Joy</span>
+        </div>
+      </div>
+
+    </div>
+
+    </div>
+
+    <div class="gallery-col">
+
+      <div class="gallery-image-wrap" id="gallery-t-magazine" onclick="nextImage(this)"
+        data-images='["https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779796453/tmag6_kigv13.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779795524/tmag1.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779796452/tmag2_krkrqy.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779796452/tmag3_ljmv9t.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779796452/tmag4_t4x3sx.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779796452/tmag5_wci3rt.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779796452/tmag7_nl83qx.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779796452/tmag8_lmsxv6.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779796452/tmag9_trn5jl.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779796453/tmag10_osrfb7.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779796453/tmag11_jcnzi2.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779796452/tmag12_jyx6do.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779796453/tmag13_cqwgud.jpg"]' data-index="0">
+        <img src="" />
+        <button class="zoom-btn" onclick="openLightbox(event, this)" title="Zoom"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></button>
+      </div>
+
+      <div class="gallery-image-wrap" id="gallery-hbf-31" onclick="nextImage(this)"
+        data-images='["https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779796955/hb3101_igf14e.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779796954/hb3102_stfbgr.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779796957/hb3103_jlsj5y.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779796956/hb3104_px4pp2.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779796962/hb3105_dxzwds.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779796958/hb3106_sk4gc5.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779796965/hb3107_iedvay.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779796964/hb3108_aotrta.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779796959/hb3109_aruvjg.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779796961/hb3110_f8dun9.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779796960/hb3111_i3ktga.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779796963/hb3112_keqanp.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779796966/hb3113_archbm.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779796967/hb3114_ow7lr0.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779796968/hb3115_wgucwy.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779796969/hb3116_dza8cr.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779796970/hb3117_vaywqw.jpg"]' data-index="0">
+        <img src="" />
+        <button class="zoom-btn" onclick="openLightbox(event, this)" title="Zoom"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></button>
+      </div>
+
+      <div class="gallery-image-wrap" id="gallery-hbf-32" onclick="nextImage(this)"
+        data-images='["https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779797102/hb3201_hhj7k3.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779797099/hb3202_hxyf9o.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779797098/hb3203_ov7bhy.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779797109/hb3204_kgiqbq.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779797106/hb3205_hm85ax.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779797100/hb3206_tn7huq.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779797101/hb3207_ldowq0.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779797104/hb3208_aqcnis.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779797108/hb3209_qr2ojg.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779797105/hb3210_cpb7gk.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779797107/hb3211_l4unkr.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779797103/hb3212_fnkqzh.jpg"]' data-index="0">
+        <img src="" />
+        <button class="zoom-btn" onclick="openLightbox(event, this)" title="Zoom"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></button>
+      </div>
+      <div class="gallery-image-wrap" id="gallery-hbh" onclick="nextImage(this)"
+        data-images='["https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779797276/hbh0201_qf1vub.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779797268/hbh0202_w8fzjz.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779797272/hbh0203_wfudmz.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779797278/hbh0204_kizzl7.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779797275/hbh0205_a4ohy5.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779797265/hbh0206_jnt5p8.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779797280/hbh0207_i3i3hq.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779797267/hbh0208_p05rkc.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779797279/hbh0209_kg6b05.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779797274/hbh0210_uav9bk.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779797273/hbh0211_rtz5ub.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779797269/hbh0212_zeuhve.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779797271/hbh0213_lu4oyw.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779797266/hbh0214_wdcmzo.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779797281/hbh0215_ytglyu.jpg"]' data-index="0">
+        <img src="" />
+        <button class="zoom-btn" onclick="openLightbox(event, this)" title="Zoom"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></button>
+      </div>
+      <div class="gallery-image-wrap" id="gallery-numero-260" onclick="nextImage(this)"
+        data-images='["https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779801452/COVERC_nw6obz.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779801453/1C_dgjjeb.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779801453/2C_wezkur.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779801453/3C_yaislx.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779801451/4C_yit8iy.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779801453/5C_ocw3te.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779801451/6C_cuwqrt.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779801453/7C_ps2ula.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779801454/8C_v4yiz8.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779801451/9C_fnk9e9.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779801452/11C_izuqn6.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779801455/12C_mjihxa.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779801455/13C_l0dptl.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779801455/14C_algj38.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779801457/15C_emkf9i.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779801452/17C_xcxagc.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779801452/18C_q16cs5.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779801457/19C_qevteq.jpg"]' data-index="0">
+        <img src="" />
+        <button class="zoom-btn" onclick="openLightbox(event, this)" title="Zoom"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></button>
+      </div>
+      <div class="gallery-image-wrap" id="gallery-dior-campaign" onclick="nextImage(this)"
+        data-images='["https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779801897/diorss2614_kpnmqj.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779801901/diorss2611_xqeywd.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779801893/diorss2601_uxfqcj.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779801901/diorss2612_mxhzxm.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779801902/diorss2613_rasper.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779801902/diorss2610_n2sixd.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779801894/diorss2602_hkrtpq.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779801898/diorss2603_tsseug.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779801895/diorss2604_ncpgtc.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779801896/diorss2605_ccofhc.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779801894/diorss2606_brr10f.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779801895/diorss2607_aaqydj.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779801900/diorss2608_ydrgkk.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779801897/diorss2609_ncex6i.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779801903/diorss2615_fx8znv.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779801899/diorss2616_pc3elw.jpg"]' data-index="0">
+        <img src="" />
+        <button class="zoom-btn" onclick="openLightbox(event, this)" title="Zoom"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></button>
+      </div>
+      <div class="gallery-media-wrap" id="gallery-chanel-video" onclick="nextImage(this)"
+        data-images='["https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779802290/bleudechanel01_vhxdrt.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779802291/bleudechanel02_klnclr.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779802291/bleudechanel03_gz0osl.jpg","https://res.cloudinary.com/dmzs0tzh2/video/upload/bleudechanel04_xvao4s.mp4","https://res.cloudinary.com/dmzs0tzh2/video/upload/bleudechanel05_rwozzc.mp4","https://res.cloudinary.com/dmzs0tzh2/video/upload/bleudechanel06_gbeddz.mp4","https://res.cloudinary.com/dmzs0tzh2/video/upload/bleudechanel07_tg4pma.mp4","https://res.cloudinary.com/dmzs0tzh2/video/upload/bleudechanel08_noynum.mp4"]' data-index="0">
+        <img src="" />
+        <button class="zoom-btn" id="chanel-zoom-btn" onclick="openLightbox(event, this)" title="Zoom"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></button>
+        <video id="chanel-vid" src="" style="display:none;max-height:75vh;max-width:600px;width:100%;" autoplay loop muted playsinline></video>
+      </div>
+      <div class="gallery-image-wrap" id="gallery-givenchy-event" onclick="nextImage(this)"
+        data-images='["https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779818150/18_icy6ky.png","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779818150/19_wedqpy.png","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779818149/20_c4pdoc.png","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779818149/21_r8qie1.png","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779818149/17_s8tgfj.png"]' data-index="0">
+        <img src="" style="max-height:75vh;max-width:600px;width:auto;display:block;object-fit:contain;" />
+        <button class="zoom-btn" onclick="openLightbox(event, this)" title="Zoom"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></button>
+      </div>
+      <div class="gallery-image-wrap" id="gallery-celeb-1" onclick="nextImage(this)"
+        data-images='["https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779806684/diorfw2601_iehzwh.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779806683/diorfw2602_trcifg.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779806686/diorfw2603_xwkxwg.jpg","https://res.cloudinary.com/dmzs0tzh2/image/upload/v1779806685/diorfw2604_dqggsg.jpg"]' data-index="0">
+        <img src="" />
+        <button class="zoom-btn" onclick="openLightbox(event, this)" title="Zoom"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+  <!-- Lightbox -->
+  <div id="lightbox" onclick="closeLightbox()">
+    <button id="lightbox-close" onclick="closeLightbox()">&#215;</button>
+    <div id="lightbox-inner">
+      <img id="lightbox-img" src="" onclick="event.stopPropagation()" />
+    </div>
+    <div id="lightbox-info" onclick="event.stopPropagation()" style="position:absolute;bottom:30px;left:30px;text-align:left;max-width:220px;"></div>
+    <div id="lightbox-credits" onclick="event.stopPropagation()" style="position:absolute;bottom:30px;right:30px;text-align:right;max-width:250px;"></div>
+  </div>
+
+  <!-- Project descriptions -->
+
+
+<script>
+  function showAbout() {
+    document.getElementById('about-page').classList.add('active');
+    document.getElementById('projects-page').classList.remove('active');
+    document.getElementById('nav-about').classList.add('active');
+    document.getElementById('nav-projects').classList.remove('active');
+    document.body.classList.remove('projects-active');
+    document.querySelectorAll('.project-credits, .project-info').forEach(e => e.classList.remove('visible'));
+  }
+
+  function showProjects() {
+    document.getElementById('projects-page').classList.add('active');
+    document.getElementById('about-page').classList.remove('active');
+    document.getElementById('nav-projects').classList.add('active');
+    document.getElementById('nav-about').classList.remove('active');
+    document.body.classList.add('projects-active');
+  }
+
+  function hoverCat(cat) {
+    document.querySelectorAll('.category-link').forEach(el => el.classList.toggle('active', el.dataset.cat === cat));
+    document.querySelectorAll('.project-list').forEach(el => el.classList.remove('visible'));
+    const list = document.getElementById('list-' + cat);
+    if (list) list.classList.add('visible');
+  }
+function openProject(projectId, el) {
+    document.querySelectorAll('.project-link').forEach(e => e.classList.remove('active'));
+    el.classList.add('active');
+    document.querySelectorAll('.gallery-image-wrap, .gallery-media-wrap').forEach(e => {
+      e.style.display = 'none';
+      const v = e.querySelector('video');
+      if (v) { v.pause(); }
+    });
+    const gallery = document.getElementById('gallery-' + projectId);
+    if (gallery) {
+      gallery.style.display = 'flex';
+      gallery.dataset.index = '0';
+      const images = JSON.parse(gallery.dataset.images);
+      if (images.length) { showMedia(gallery, images[0]); updateZoomBtn(gallery, images[0]); }
+    }
+    document.querySelectorAll('.project-credits, .project-info').forEach(e => e.classList.remove('visible'));
+    const credits = document.getElementById('credits-' + projectId);
+    if (credits) credits.classList.add('visible');
+    const info = document.getElementById('info-' + projectId);
+    if (info) info.classList.add('visible');
+  }
+
+  function nextImage(wrap) {
+    const images = JSON.parse(wrap.dataset.images);
+    if (images.length <= 1) return;
+    let idx = (parseInt(wrap.dataset.index) + 1) % images.length;
+    wrap.dataset.index = idx;
+    showMedia(wrap, images[idx]);
+    updateZoomBtn(wrap, images[idx]);
+  }
+
+  function updateZoomBtn(wrap, src) {
+    const btn = wrap.querySelector('.zoom-btn');
+    if (!btn) return;
+    btn.style.display = (src && src.match(/\.mp4$/)) ? 'none' : '';
+  }
+
+  function showMedia(wrap, src) {
+    if (!src) return;
+    // ensure img-inner wrapper exists
+    let inner = wrap.querySelector('.img-inner');
+    if (!inner) {
+      inner = document.createElement('div');
+      inner.className = 'img-inner';
+      // move existing img/video into inner
+      const existingImg = wrap.querySelector('img');
+      const existingVid = wrap.querySelector('video');
+      const existingBtn = wrap.querySelector('.zoom-btn');
+      if (existingImg) inner.appendChild(existingImg);
+      if (existingVid) inner.appendChild(existingVid);
+      if (existingBtn) inner.appendChild(existingBtn);
+      wrap.appendChild(inner);
+    }
+    let img = inner.querySelector('img');
+    let vid = inner.querySelector('video');
+    if (src.match(/\.mp4$/)) {
+      if (!vid) {
+        vid = document.createElement('video');
+        vid.autoplay = true; vid.loop = true; vid.muted = true; vid.playsInline = true;
+        inner.appendChild(vid);
+      }
+      if (img) img.style.display = 'none';
+      vid.style.display = 'block';
+      vid.src = src;
+      vid.play();
+      // show mute button
+      let muteBtn = inner.querySelector('.mute-btn');
+      if (!muteBtn) {
+        muteBtn = document.createElement('button');
+        muteBtn.className = 'mute-btn';
+        muteBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>';
+        muteBtn.onclick = function(e) {
+          e.stopPropagation();
+          const v = inner.querySelector('video');
+          if (!v) return;
+          v.muted = !v.muted;
+          muteBtn.innerHTML = v.muted
+            ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>'
+            : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>';
+        };
+        inner.appendChild(muteBtn);
+      }
+      muteBtn.style.display = 'flex';
+    } else {
+      if (vid) { vid.style.display = 'none'; vid.pause(); }
+      const muteBtn = inner.querySelector('.mute-btn');
+      if (muteBtn) muteBtn.style.display = 'none';
+      if (!img) {
+        img = document.createElement('img');
+        inner.appendChild(img);
+      }
+      img.style.display = 'block';
+      img.src = src;
+    }
+  }
+
+  function openLightbox(e, btn) {
+    e.stopPropagation();
+    const wrap = btn.closest('.gallery-image-wrap, .gallery-media-wrap');
+    const inner = wrap.querySelector('.img-inner') || wrap;
+    const img = inner.querySelector('img');
+    if (img && img.src) {
+      document.getElementById('lightbox-img').src = img.src;
+      document.getElementById('lightbox').classList.add('open');
+    }
+  }
+
+  function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('open');
+    document.body.classList.remove('lightbox-open');
+    document.getElementById('lightbox-img').src = '';
+    const lbVid = document.getElementById('lightbox-vid');
+    if (lbVid) { lbVid.pause(); lbVid.src = ''; }
+  }
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeLightbox();
+  });
+
+
+  // Swipe support for mobile
+  let touchStartX = 0;
+  let touchEndX = 0;
+  let activeGallery = null;
+
+  document.addEventListener('touchstart', function(e) {
+    touchStartX = e.changedTouches[0].screenX;
+    activeGallery = document.querySelector('.gallery-image-wrap[style*="flex"], .gallery-media-wrap[style*="flex"]');
+  }, { passive: true });
+
+  document.addEventListener('touchend', function(e) {
+    touchEndX = e.changedTouches[0].screenX;
+    if (!activeGallery) return;
+    const diff = touchStartX - touchEndX;
+    if (Math.abs(diff) > 50) {
+      const images = JSON.parse(activeGallery.dataset.images);
+      if (images.length <= 1) return;
+      let idx = parseInt(activeGallery.dataset.index);
+      if (diff > 0) {
+        idx = (idx + 1) % images.length; // swipe left = next
+      } else {
+        idx = (idx - 1 + images.length) % images.length; // swipe right = prev
+      }
+      activeGallery.dataset.index = idx;
+      showMedia(activeGallery, images[idx]);
+      updateZoomBtn(activeGallery, images[idx]);
+    }
+  }, { passive: true });
+
+</script>
+
+<!-- Project credits -->
+<div class="project-credits" id="credits-t-magazine">
+  <div class="credit-line"><span>photography</span>Luis Alberto Rodriguez</div>
+  <div class="credit-line"><span>styling</span>Raphael Hirsch</div>
+  <div class="credit-line"><span>casting</span>Rachel Chandler</div>
+  <div class="credit-line"><span>talent</span>Sora Choi</div>
+  <div class="credit-line"><span>makeup</span>Karin Westerlund</div>
+  <div class="credit-line"><span>hair</span>Joey George</div>
+  <div class="credit-line"><span>nails</span>Eri Narita</div>
+  <div class="credit-line"><span>set design</span>Afra Zamara</div>
+</div>
+<div class="project-credits" id="credits-hbf-31">
+  <div class="credit-line"><span>photography</span>Karim Sadli</div>
+  <div class="credit-line"><span>styling</span>Elodie David-Touboul</div>
+  <div class="credit-line"><span>model</span>Loli Bahia</div>
+  <div class="credit-line"><span>casting</span>Piergiorgio & Helena Balladino</div>
+  <div class="credit-line"><span>hair</span>Anthony Turner</div>
+  <div class="credit-line"><span>makeup</span>Christelle Cocquet</div>
+  <div class="credit-line"><span>nails</span>Hanae Goumri</div>
+  <div class="credit-line"><span>set design</span>Alexander Bock</div>
+</div>
+<div class="project-credits" id="credits-hbf-32">
+  <div class="credit-line"><span>photography</span>Karim Sadli</div>
+  <div class="credit-line"><span>styling</span>Elodie David-Touboul</div>
+  <div class="credit-line"><span>creative direction</span>Atelier Franck Durand</div>
+  <div class="credit-line"><span>casting</span>Piergiorgio</div>
+  <div class="credit-line"><span>hair</span>John Nollet</div>
+  <div class="credit-line"><span>makeup</span>Sandrine Cano-Bock</div>
+  <div class="credit-line"><span>nails</span>Hanae Goumri</div>
+  <div class="credit-line"><span>set design</span>Alexander Bock</div>
+</div>
+<div class="project-credits" id="credits-hbh">
+  <div class="credit-line"><span>photography</span>Karim Sadli</div>
+  <div class="credit-line"><span>styling</span>Elodie David-Touboul</div>
+  <div class="credit-line"><span>talent</span>Paul Kircher</div>
+  <div class="credit-line"><span>casting</span>Piergiorgio & Helena Balladino</div>
+  <div class="credit-line"><span>hair</span>Rudi Lewis</div>
+  <div class="credit-line"><span>makeup</span>Christelle Cocquet</div>
+  <div class="credit-line"><span>nails</span>Hanae Goumri</div>
+  <div class="credit-line"><span>set design</span>Alexander Bock</div>
+</div>
+<div class="project-credits" id="credits-numero-260">
+  <div class="credit-line"><span>photography</span>Kenny Germé</div>
+  <div class="credit-line"><span>styling</span>Edem Dossou</div>
+  <div class="credit-line"><span>casting</span>Paul Louisor</div>
+  <div class="credit-line"><span>models</span>Fatou Kebbeh, Balat Pal & Ateta Jok</div>
+  <div class="credit-line"><span>hair</span>Dalibor Vrtina</div>
+  <div class="credit-line"><span>makeup</span>Hicham Ababsa</div>
+  <div class="credit-line"><span>nails</span>Edyta Betka</div>
+  <div class="credit-line"><span>set design</span>Frédérick Asseo</div>
+</div>
+<div class="project-credits" id="credits-dior-campaign">
+  <div class="credit-line"><span>photography</span>Grace Ahlbom</div>
+  <div class="credit-line"><span>styling</span>Azza Yousif</div>
+  <div class="credit-line"><span>models</span>Chloé P. Peralta, Lota Blaskovic, Dana Smith & Yun</div>
+  <div class="credit-line"><span>movement direction</span>Ryan Chappell</div>
+  <div class="credit-line"><span>hair</span>Mélisande Page</div>
+  <div class="credit-line"><span>makeup</span>Julie Camus</div>
+  <div class="credit-line"><span>set design</span>Anna Sbiera-Paléologue</div>
+</div>
+<div class="project-credits" id="credits-chanel-video">
+  <div class="credit-line"><span>photography</span>Karim Sadli</div>
+  <div class="credit-line"><span>director</span>Shayne Laverdiere</div>
+  <div class="credit-line"><span>talent</span>Jacob Elordi</div>
+  <div class="credit-line"><span>styling</span>Jany Temime</div>
+  <div class="credit-line"><span>director of photography</span>Théodore Hugonnier</div>
+  <div class="credit-line"><span>groomer</span>Amy Komorowski</div>
+</div>
+<div class="project-credits" id="credits-givenchy-event">
+  <div class="credit-line"><span>fashion show</span>Hôtel de Caraman, 3 Avenue George V</div>
+  <div class="credit-line"><span>show guests</span>129 VICs & prospects</div>
+  <div class="credit-line"><span>aftershow dinner</span>Le Petit Palais</div>
+  <div class="credit-line"><span>dinner guests</span>141 guests</div>
+  <div class="credit-line"><span>chef</span>Yannick Alléno</div>
+  <div class="credit-line"><span>resee</span>76 attendees, 45 appointments</div>
+  <div class="credit-line"><span>wish list generated</span>2.8M€</div>
+</div>
+<div class="project-credits" id="credits-celeb-1">
+  <div class="credit-line"><span>photography</span>Nicolò De March</div>
+  <div class="credit-line"><span>talent</span>Anya Taylor-Joy</div>
+  <div class="credit-line"><span>creative direction</span>Jonathan Anderson for Dior</div>
+  <div class="credit-line"><span>hair</span>Gregory Russell</div>
+  <div class="credit-line"><span>makeup</span>Georgie Isdell</div>
+</div>
+
+<!-- Project info -->
+<div class="project-info" id="info-t-magazine">
+  <p class="project-role">Production coordinator for the T Magazine Design Issue.<br>New York Times Style Magazine.</p>
+</div>
+<div class="project-info" id="info-hbf-31">
+  <p class="project-role">Production coordinator for Harper's Bazaar France n°31.<br>Le Spécial Mode avec Loli Bahia.</p>
+</div>
+<div class="project-info" id="info-hbf-32">
+  <p class="project-role">Production coordinator for Harper's Bazaar France n°32.</p>
+</div>
+<div class="project-info" id="info-hbh">
+  <p class="project-role">Production coordinator for Harper's Bazaar Homme.</p>
+</div>
+<div class="project-info" id="info-numero-260">
+  <p class="project-role">Production coordinator for Numéro magazine issue 260.</p>
+</div>
+<div class="project-info" id="info-dior-campaign">
+  <p class="project-role">Production coordinator for the Dior SS26 campaign.</p>
+</div>
+<div class="project-info" id="info-chanel-video">
+  <p class="project-role">Production coordinator for Bleu de Chanel x Jacob Elordi.</p>
+</div>
+<div class="project-info" id="info-givenchy-event">
+  <p class="project-role">Clienteling & VIP coordination for the Givenchy FW25 show experience.<br>Fashion Show at Hôtel de Caraman & Aftershow Dinner at Le Petit Palais.</p>
+</div>
+<div class="project-info" id="info-celeb-1">
+  <p class="project-role">Production coordinator for the Dior FW26 show, with Anya Taylor-Joy.</p>
+</div>
+</body>
+</html>

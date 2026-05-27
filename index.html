@@ -250,25 +250,27 @@ Portfolio</title>
     /* Projects page */
     #projects-page { padding-top: 80px; padding-left: 0; }
     .projects-layout { flex-direction: column; }
+    .categories-col + * { width: 100%; }
 
-    /* Categories */
+    /* Categories - all on one line */
     .categories-col {
       width: 100%;
       flex-direction: row;
-      flex-wrap: wrap;
-      gap: 8px 20px;
+      flex-wrap: nowrap;
+      gap: 0 16px;
       padding: 0 16px;
+      overflow-x: auto;
     }
-    .category-item { position: static; }
-    .category-link { font-size: 13px; }
+    .category-item { position: static; flex-shrink: 0; }
+    .category-link { font-size: 12px; white-space: nowrap; }
 
-    /* Project list */
+    /* Project list - below categories */
     .project-list {
       position: static;
       display: none;
       flex-direction: column;
-      gap: 8px;
-      padding: 12px 16px 0 16px;
+      gap: 10px;
+      padding: 16px 16px 0 16px;
       white-space: normal;
       width: 100vw;
     }
@@ -370,7 +372,7 @@ Portfolio</title>
     <div class="categories-col">
 
       <div class="category-item">
-        <span class="category-link" data-cat="editorial" onmouseenter="hoverCat('editorial')">editorial</span>
+        <span class="category-link" data-cat="editorial" onmouseenter="hoverCat('editorial')" onclick="hoverCat('editorial')">editorial</span>
         <div class="project-list" id="list-editorial">
           <span class="project-link" onclick="openProject('t-magazine', this)">T Magazine design issue</span>
           <span class="project-link" onclick="openProject('hbf-31', this)">Harper's Bazaar France n°31</span>
@@ -381,7 +383,7 @@ Portfolio</title>
       </div>
 
       <div class="category-item">
-        <span class="category-link" data-cat="commercial" onmouseenter="hoverCat('commercial')">commercial</span>
+        <span class="category-link" data-cat="commercial" onmouseenter="hoverCat('commercial')" onclick="hoverCat('commercial')">commercial</span>
         <div class="project-list" id="list-commercial">
           <span class="project-link" onclick="openProject('dior-campaign', this)">Dior SS26 Campaign</span>
           <span class="project-link" onclick="openProject('chanel-video', this)">Bleu de Chanel x Jacob Elordi</span>
@@ -389,14 +391,14 @@ Portfolio</title>
       </div>
 
       <div class="category-item">
-        <span class="category-link" data-cat="experiences" onmouseenter="hoverCat('experiences')">experiences</span>
+        <span class="category-link" data-cat="experiences" onmouseenter="hoverCat('experiences')" onclick="hoverCat('experiences')">experiences</span>
         <div class="project-list" id="list-experiences">
           <span class="project-link" onclick="openProject('givenchy-event', this)">Givenchy FW25 Show Experience</span>
         </div>
       </div>
 
       <div class="category-item">
-        <span class="category-link" data-cat="celebrities" onmouseenter="hoverCat('celebrities')">celebrities</span>
+        <span class="category-link" data-cat="celebrities" onmouseenter="hoverCat('celebrities')" onclick="hoverCat('celebrities')">celebrities</span>
         <div class="project-list" id="list-celebrities">
           <span class="project-link" onclick="openProject('celeb-1', this)">Dior FW26 x Anya Taylor-Joy</span>
         </div>

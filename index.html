@@ -13,7 +13,7 @@ Portfolio</title>
   nav a { text-decoration: none; color: #000; cursor: pointer; font-size: 14px; line-height: 1.4; }
   nav a.active, nav a:hover { color: #0000EE; }
 
-  .copyright { position: fixed; top: 16px; right: 16px; font-size: 11px; color: #000; z-index: 100; }
+  .copyright { position: fixed; top: 16px; right: 16px; font-size: 11px; color: #000; z-index: 100; white-space: nowrap; }
 
   .page { display: none; }
   .page.active { display: block; }
@@ -357,15 +357,15 @@ Portfolio</title>
   }
 
   @media (max-width: 768px) {
-    /* Copyright at bottom on mobile */
+    /* Copyright at bottom right on mobile */
     .copyright {
       position: fixed;
       top: auto !important;
       bottom: 12px;
-      right: auto !important;
-      left: 0;
-      width: 100%;
-      text-align: center;
+      right: 12px !important;
+      left: auto;
+      width: auto;
+      text-align: right;
       font-size: 9px;
     }
 
@@ -379,6 +379,46 @@ Portfolio</title>
       max-height: 70vh !important;
     }
   }
+
+  @media (max-width: 768px) {
+    .project-credits {
+      position: static !important;
+      display: none;
+      text-align: left !important;
+      padding: 16px 16px 0 16px;
+      max-width: 100% !important;
+    }
+    .project-credits.visible { display: block; }
+    .project-info {
+      position: static !important;
+      display: none;
+      text-align: left !important;
+      padding: 8px 16px 80px 16px;
+      max-width: 100% !important;
+      font-style: italic;
+      font-size: 11px;
+    }
+    .project-info.visible { display: block; }
+    .credit-line {
+      font-size: 11px;
+      margin-bottom: 8px;
+    }
+    .credit-line span {
+      font-size: 11px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .copyright {
+      position: static !important;
+      display: block;
+      text-align: right;
+      font-size: 9px;
+      padding: 20px 16px 20px 16px;
+      white-space: nowrap;
+      color: #000;
+    }
+  }
 </style>
 </head>
 <body>
@@ -388,7 +428,6 @@ Portfolio</title>
   <a id="nav-projects" onclick="showProjects()">projects</a>
 </nav>
 
-<div class="copyright">Liliana Della Porta Creative Portfolio © 2026 | All Rights Reserved</div>
 
 <!-- ABOUT -->
 <div class="page active" id="about-page">
@@ -804,5 +843,7 @@ function openProject(projectId, el) {
 <div class="project-info" id="info-celeb-1">
   <p class="project-role">Production coordinator for the Dior FW26 show, with Anya Taylor-Joy.</p>
 </div>
+
+<div class="copyright">Liliana Della Porta Creative Portfolio © 2026 | All Rights Reserved</div>
 </body>
 </html>
